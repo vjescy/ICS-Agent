@@ -28,7 +28,8 @@ If all 3 deltas equal to 0, that is, there is no activity in the system or any o
 4. System halted/crashed/not working as expected
 
    
-   ![obraz](https://github.com/user-attachments/assets/86a1fa34-e2d0-4e0b-9630-292326a3a694)
+ ![obraz](https://github.com/user-attachments/assets/d1675991-7f21-4e5e-b990-83b2525d0b1f)
+
 
 
 
