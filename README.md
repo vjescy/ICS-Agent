@@ -32,6 +32,14 @@ If all 3 deltas equal to 0, that is, there is no activity in the system or any o
 
 
 
+# How to run the Agent
+
+1. Clone the repo
+2. Install dependencies in a virtual environment (requirements.txt)
+3. Change the URL in main.py to corresponding URL for HMI
+4. Add the telegram bot Token and Bot ID in telegram_alert.pl
+5. Run the main.py, in the event of failure, an error message will be sent by bot on telegram
+
 
 
   
