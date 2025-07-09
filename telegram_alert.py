@@ -3,8 +3,8 @@
 import os
 import httpx
 
-TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "7558827531:AAGBTv-6QNF6wB6xdb7VIJB4wkRHN9FYea4")
-TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "8107673531")
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "API TOKEN HERE")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "CHAT ID HERE")
 
 async def send_telegram_alert(message: str):
     """

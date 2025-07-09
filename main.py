@@ -2,11 +2,9 @@ import asyncio
 import re
 import requests
 import io
-import sys
 from contextlib import redirect_stdout
 from playwright.async_api import async_playwright
 from telegram_alert import send_telegram_alert
-
 
 URL = "http://localhost:19091/ScadaBR/"
 USERNAME = "admin"
@@ -30,9 +28,6 @@ POINTS_OF_INTEREST = [
     "DATA PLC3 - Level"
 ]
 
-# =====================================
-# SYNCHRONICZNE
-# =====================================
 def check_scadabr_reachable(url=URL):
     try:
         response = requests.get(url, timeout=5)
@@ -52,8 +47,8 @@ def attempt_scadabr_login(url=URL, username=USERNAME, password=PASSWORD):
     try:
         with requests.Session() as session:
             response = session.post(login_url, data=payload, timeout=5)
-            if "logout" in response.text.lower() or response.status_code == 200:
-                print(f"[2] [+] Login attempt with {username}/{password} may have succeeded at {login_url}")
+            if "logout" in response.text.lower():
+                print(f"[2] [+] Login attempt with {username}/{password} succeeded at {login_url}")
                 return True
             else:
                 print(f"[2] [!] Login attempt with {username}/{password} failed")
@@ -62,9 +57,6 @@ def attempt_scadabr_login(url=URL, username=USERNAME, password=PASSWORD):
         print(f"[2] [✘] Could not connect to {login_url} ({e})")
         return False
 
-# =====================================
-# ASYNC PLAYWRIGHT
-# =====================================
 def extract_points_and_values_from_text(text):
     pattern = r"(DATA PLC[^\t]+)\t([\d.]+)\t"
     matches = re.findall(pattern, text)
@@ -95,7 +87,6 @@ async def read_and_compare_points(page):
         print(f"    {p[0]} = {p[1]}")
 
     await asyncio.sleep(5)
-
     await page.reload()
     await page.wait_for_timeout(3000)
     body_text_second = await page.inner_text("body")
@@ -120,24 +111,15 @@ async def read_and_compare_points(page):
             return False
     return any_delta
 
-# =====================================
-# MAIN WRAPPER
-# =====================================
 async def full_check_scadabr():
-    # 1) Check reachable
     if not check_scadabr_reachable():
         return False
-
-    # 2) Check login
     if not attempt_scadabr_login():
         return False
-
-    # 3) Check points presence and 4) Read points & deltas
     async with async_playwright() as p:
-        browser = await p.firefox.launch(headless=False)
+        browser = await p.firefox.launch(headless=True)
         context = await browser.new_context()
         page = await context.new_page()
-
         try:
             await page.goto(URL + "login.htm")
             await page.fill('input[name="username"]', USERNAME)
@@ -162,24 +144,31 @@ async def full_check_scadabr():
             return False
         finally:
             await browser.close()
+
+def escape_html(text):
+    return (
+        text.replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+    )
+
 if __name__ == "__main__":
     buffer = io.StringIO()
     with redirect_stdout(buffer):
         result = asyncio.run(full_check_scadabr())
 
     captured_output = buffer.getvalue()
-
-    print(captured_output)  # Still prints to console for your logs
+    print(captured_output)
 
     if result:
         print("\n✅ FINAL RESULT: True")
     else:
         print("\n❌ FINAL RESULT: False")
+        safe_output = escape_html(captured_output.strip())
         message = (
             "<b>SCADAbr ALERT</b>\n"
             "❌ <b>FINAL RESULT: False</b>\n\n"
             "<b>Output:</b>\n"
-            f"<pre>{captured_output[-3500:]}</pre>"
+            f"<pre>{safe_output[-3500:]}</pre>"
         )
         asyncio.run(send_telegram_alert(message))
-
