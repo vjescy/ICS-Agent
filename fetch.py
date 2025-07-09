@@ -1,7 +1,12 @@
 import asyncio
 import re
 import requests
+import io
+import sys
+from contextlib import redirect_stdout
 from playwright.async_api import async_playwright
+from telegram_alert import send_telegram_alert
+
 
 URL = "http://localhost:19091/ScadaBR/"
 USERNAME = "admin"
@@ -129,7 +134,7 @@ async def full_check_scadabr():
 
     # 3) Check points presence and 4) Read points & deltas
     async with async_playwright() as p:
-        browser = await p.firefox.launch(headless=True)
+        browser = await p.firefox.launch(headless=False)
         context = await browser.new_context()
         page = await context.new_page()
 
@@ -157,10 +162,24 @@ async def full_check_scadabr():
             return False
         finally:
             await browser.close()
-
 if __name__ == "__main__":
-    result = asyncio.run(full_check_scadabr())
+    buffer = io.StringIO()
+    with redirect_stdout(buffer):
+        result = asyncio.run(full_check_scadabr())
+
+    captured_output = buffer.getvalue()
+
+    print(captured_output)  # Still prints to console for your logs
+
     if result:
         print("\n✅ FINAL RESULT: True")
     else:
         print("\n❌ FINAL RESULT: False")
+        message = (
+            "<b>SCADAbr ALERT</b>\n"
+            "❌ <b>FINAL RESULT: False</b>\n\n"
+            "<b>Output:</b>\n"
+            f"<pre>{captured_output[-3500:]}</pre>"
+        )
+        asyncio.run(send_telegram_alert(message))
+
