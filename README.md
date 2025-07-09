@@ -15,17 +15,17 @@ If all 3 deltas equal to 0, that is, there is no activity in the system or any o
   ![obraz](https://github.com/user-attachments/assets/6aa07276-88f4-470b-9ae0-f9c08517fb15)
 
   
-3. Cannot login
+2. Cannot login
 
    
    ![obraz](https://github.com/user-attachments/assets/4d3ed4ba-c20d-41a1-9ab1-4a3cc014a428)
    
-5. Missing Datapoints
+3. Missing Datapoints
 
    
    ![obraz](https://github.com/user-attachments/assets/63c9dcde-d78c-4144-a323-c3a083cbf48b)
    
-7. System halted/crashed/not working as expected
+4. System halted/crashed/not working as expected
 
    
    ![obraz](https://github.com/user-attachments/assets/86a1fa34-e2d0-4e0b-9630-292326a3a694)
